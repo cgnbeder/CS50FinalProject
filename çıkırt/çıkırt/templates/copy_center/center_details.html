@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+<div class="container pt-3">
+  {% for message in messages %}
+{% if message.tags == "error" %}
+    <div class="mt-3 p-2 alert alert-danger text-center">
+        {{ message }}
+    </div>
+{% else %}
+    <div class="mt-3 p-2  alert alert-{{ message.tags }} text-center">
+        {{ message }}
+    </div>
+{% endif %}
+{% endfor %}
+
+  <section class="h-100 h-custom " style="background-color: #eee;">
+  <div class="container pt-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-8 col-xl-6">
+        <div class="card border-top border-bottom border-3" style="border-color: #f37a27 !important;">
+          <div class="card-body p-5">
+            <p class="lead fw-bold mb-3" style="color: #f37a27;">{{center.name}}</p>
+            <div class="row">
+              <div class="col mb-3">
+                  <img src="{% if center.image_url %}{{center.image_url}}{% else %}{% static 'img/no_image.png' %}{% endif %}" class="card-img-top" style="max-height:100px;  object-fit:contain;"  alt="{{list.list_title}}">
+              </div>
+              <div class="col mb-3">
+                <p class="small text-muted mb-1">Location:</p>
+                <h6> {{center.location}}</h6>
+              </div>
+          </div>
+          <form class="" action="{% url 'order' pk=center.pk %}" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+            <div class="mx-n5 px-5 py-4" style="background-color: #f2f2f2;">
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="form-group mb-2">
+                    <label for="file">Upload A File</label>
+                    <input class="form-control" name="file" type="file" id="file" required>
+                  </div>
+                  <div class="form-group mb-2">
+                    <label for="paper">Select A Page</label>
+                  <select class="form-select " id="paper" name="paper" aria-label="Default select example">
+                    <option value="A4" selected>A4   ____${{center.price_ltr_a4}}</option>
+                    <option value="Letter">Letter  ____${{center.price_ltr_a4}}</option>
+                    <option value="Legal">Legal  ____${{center.price_legal}}</option>
+                    <option value="A3">A3  ____${{center.price_a3}}</option>
+                  </select>
+                  </div>
+                  <div class="row">
+                    <div class="form-group col mb-2">
+                      <label for="time">Hours To Deliver</label>
+                      <select class="form-select" id="time" name="time" aria-label="Default select example">
+                        <option value="1" selected>1</option>
+                        <option value="2" >2</option>
+                        <option value="3" >3 </option>
+                        <option value="4" >4</option>
+                        <option value="5" >5</option>
+                        <option value="more" >More</option>
+                      </select>
+                    </div>
+                    <div class="form-group col mb-2">
+                      <label for="count">Number Of Pages</label>
+                      <input type="number" class="form-control" id="count" name="count" value="1" min="1">
+                    </div>
+                  </div>
+                  <div class="form-group mb-2">
+                    <label for="product_list">Select A product</label>
+                    <ul class="list-group bg-light" id="product_list" style="max-height:180px; overflow-x:hidden; overflow-y:auto">
+                      {% for item in product %}
+                      <li class="list-group-item">
+                        <input class="form-check-input me-1" type="checkbox" value="{{item.title}}" >
+                        <input type="hidden" value="{{item.price}}">
+                        {{item.title}}  -${{item.price}}
+                      </li>
+                      {% empty %}
+                      <li class="list-group-item">No product available</li>
+                      {% endfor %}
+                    </ul>
+                    <input type="hidden" name="product" id="product" value="">
+                  </div>
+
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" name="is_colored" type="checkbox" id="is_colored" value=true >
+                    <input type="hidden" id="color_price" value="{{center.price_colored}}">
+                    <label class="form-check-label" for="is_colored">is Colored?  - ${{center.price_colored}}</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" name="is_thin" type="checkbox" id="is_thin" value=true>
+                    <input type="hidden" id="thin_price" value="{{center.price_thin}}">
+                    <label class="form-check-label" for="is_thin">is thin?  - ${{center.price_thin}}</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col">
+                  <p class="mb-0">Total</p>
+                </div>
+                <div class="col d-flex justify-content-end">
+                  <p class="mb-0" id="total">$0</p>
+                  <input type="hidden" id="price" name="price" value="0">
+                </div>
+              </div>
+            </div>
+            <div class="row my-4">
+              <div class="col-md-4 offset-md-8 col-lg-3 offset-lg-9">
+                <input type="submit" class="btn btn-secondary" style="color:#fff; font-size:20px; border:none; border-radius:5px;" value="Submit">
+              </div>
+            </div>
+        </form>
+            <p class="text-light p-2" style="background-color: #f37a27; font-size:1rem; font-weight:bold">Already took service from their? You can add a review and comment in the section below!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pt-2 pb-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-8 col-xl-6">
+        <div class="card border-top border-bottom border-3" style="border-color: #f37a27 !important;">
+          <div class="card-body py-3 px-5">
+          <p class="lead fw-bold mb-2 " style="color: #f37a27;">Rating</p>
+            <div class="row">
+              <form class="" action="{% url 'rating' pk=center.pk %}" method="post">
+                {% csrf_token %}
+                <select class="form-select mb-2" name="rating" id="rating" aria-label="Default select example">
+                  <option value=5 selected>5 star</option>
+                  <option value=4 >4 star</option>
+                  <option value=3 >3 star</option>
+                  <option value=2 >2 star</option>
+                  <option value=1 >1 star</option>
+                </select>
+                <input type="submit" name="submit" class="py-1 px-2 rounded text-white border-0" style="background-color: #f37a27;" value="Rate">
+              </form>
+            </div>
+            <p class="lead fw-bold my-2 " style="color: #f37a27;">Comment</p>
+            <div class="row">
+              <form action="{% url 'comment' pk=center.pk %}" method="post">
+                {% csrf_token %}
+                <textarea name="comment" class="form-control mb-2"  rows="2" ></textarea>
+                <button type="submit" class="py-1 px-2 rounded text-white border-0" style="background-color: #f37a27;">post
+                </button
+              </form>
+            </div>
+
+            <ul class="mt-2">
+              {% if comments %}
+              {% for comment in comments %}
+              <li class="mb-2">
+                <span style="color: #f37a27;">@{{comment.user.username}}</span>
+                <small>{{comment.commented_at}}</small>
+                <p>{{comment.comment}}</p>
+              </li>
+              {% endfor %}
+              {% else %}
+              <p class="text-center">There is no comment to show!</p>
+              {% endif %}
+            </ul>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+<script>
+  const file = document.getElementById('file')
+  const paper = document.getElementById('paper')
+  const productList = document.getElementById('product_list')
+  const productItem = productList.querySelectorAll('input[type=checkbox]')
+  const product = document.getElementById('product')
+  const is_colored = document.getElementById('is_colored')
+  const color_price = document.getElementById('color_price')
+  const is_thin = document.getElementById('is_thin')
+  const thin_price = document.getElementById('thin_price')
+  const count = document.getElementById('count')
+  const time = document.getElementById('time')
+  const total = document.getElementById('total')
+  const price = document.getElementById('price')
+
+function getThinPrice(val){
+  if(val.checked == true){
+    return thin_price.value
+  }else{
+    return "0"
+  }
+}
+function getColorPrice(val){
+  if(val.checked == true){
+    return color_price.value
+  }else{
+    return "0"
+  }
+}
+
+function updateProducPrice(){
+  const list = productList.querySelectorAll('input[type=hidden]');
+  if(list.length > 0){
+    let productArr = []
+    let priceArr = []
+    list.forEach(item => {
+      if(item.previousElementSibling.checked){
+        priceArr.push(item.value)
+        productArr.push(item.previousElementSibling.value)
+      }else{
+        priceArr.push('0')
+        productArr.push("")
+      }
+    })
+    let concateArr = productArr.join(',')
+    let sum = priceArr.reduce((acc, curr) => parseFloat(acc) + parseFloat(curr))
+    product.value = concateArr
+    return sum;
+  }else{
+    return 0;
+  }
+}
+
+updateProducPrice()
+
+function updateTotal(){
+    const temp = ((parseFloat(getPaperValue(paper.value)) + parseFloat(getColorPrice(is_colored)) + parseFloat(getThinPrice(is_thin))) * parseFloat(count.value)) + parseFloat(updateProducPrice())
+    total.innerHTML =  `$${temp}`
+    price.value = temp
+}
+updateTotal()
+
+
+  function getPaperValue(value) {
+    switch(value){
+      case "A4":
+        return "{{center.price_ltr_a4}}"
+      case "Letter":
+        return "{{center.price_ltr_a4}}"
+      case "Legal":
+        return "{{center.price_legal}}"
+      case "A3":
+        return "{{center.price_a3}}"
+    }
+  }
+
+  function getProductValue(){
+
+  }
+
+  paper.addEventListener('change', e=>{
+    updateTotal()
+  })
+
+  is_colored.addEventListener('change', e => {
+    updateTotal()
+  })
+
+  is_thin.addEventListener('change', e => {
+    updateTotal()
+  })
+
+  count.addEventListener('change', e => {
+    updateTotal()
+  })
+  count.addEventListener('keyup', e => {
+    if(e.target.value < 1){
+      e.target.value = 0
+    }
+    updateTotal()
+  })
+
+  if(productItem.length > 0){
+    productItem.forEach(item => item.addEventListener('change', e=>{
+      updateTotal()
+    }))
+  }
+
+</script>
+{% endblock %}
